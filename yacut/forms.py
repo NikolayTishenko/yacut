@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from settings import USER_LINK_LENGTH
 from wtforms import StringField, SubmitField, URLField
 from wtforms.validators import URL, DataRequired, Length, Optional
+
+from settings import USER_LINK_LENGTH
 
 
 class URLMapForm(FlaskForm):

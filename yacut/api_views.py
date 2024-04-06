@@ -3,7 +3,7 @@ import re
 from flask import jsonify, request
 from settings import SHORT_URL_PATTERN, USER_LINK_LENGTH
 
-from . import app, db
+from . import app
 from .error_handlers import InvalidAPIUsage
 from .models import URLMap
 from .views import get_unique_short_id
@@ -32,14 +32,13 @@ def add_short_url():
         original=original,
         short=short
     )
-    db.session.add(data_urls)
-    db.session.commit()
+    URLMap.save(data_urls)
     return jsonify(data_urls.url_to_dict()), 201
 
 
 @app.route('/api/id/<string:short>/', methods=['GET'])
 def get_original_url(short):
-    original_url = URLMap.query.filter_by(short=short).first()
+    original_url = URLMap.get(short)
     if not original_url:
         raise InvalidAPIUsage('Указанный id не найден', 404)
     return jsonify({'url': original_url.original}), 200

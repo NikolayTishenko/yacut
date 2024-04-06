@@ -1,17 +1,18 @@
 import random
-import string
 
 from flask import flash, redirect, render_template
-from settings import SHORT_LINK_LENGTH
+from settings import SHORT_LINK_LENGTH, CHARACTER_SET
 
-from . import app, db
+from . import app
 from .forms import URLMapForm
 from .models import URLMap
 
 
 def get_unique_short_id():
-    letters_and_digits = string.ascii_letters + string.digits
-    rand_string = ''.join(random.sample(letters_and_digits, SHORT_LINK_LENGTH))
+    rand_string = ''.join(random.choice(CHARACTER_SET)
+                          for __ in range(SHORT_LINK_LENGTH))
+    if URLMap.get(rand_string):
+        return get_unique_short_id()
     return rand_string
 
 
@@ -29,8 +30,7 @@ def index_view():
             original=form.original_link.data,
             short=custom_id,
         )
-        db.session.add(data_urls)
-        db.session.commit()
+        URLMap.save(data_urls)
         return render_template('yacut.html', form=form, short=custom_id)
     return render_template('yacut.html', form=form)
 

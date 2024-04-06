@@ -20,3 +20,10 @@ class URLMap(db.Model):
                                _external=True
                                )
         )
+
+    def save(data_urls):
+        db.session.add(data_urls)
+        db.session.commit()
+
+    def get(short):
+        return URLMap.query.filter_by(short=short).first()
