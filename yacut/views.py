@@ -1,36 +1,20 @@
-import random
-
 from flask import flash, redirect, render_template
-from settings import SHORT_LINK_LENGTH, CHARACTER_SET
 
 from . import app
 from .forms import URLMapForm
 from .models import URLMap
 
 
-def get_unique_short_id():
-    rand_string = ''.join(random.choice(CHARACTER_SET)
-                          for __ in range(SHORT_LINK_LENGTH))
-    if URLMap.get(rand_string):
-        return get_unique_short_id()
-    return rand_string
-
-
 @app.route('/', methods=['GET', 'POST'])
 def index_view():
     form = URLMapForm()
     if form.validate_on_submit():
+        original = form.original_link.data
         custom_id = form.custom_id.data
-        if URLMap.query.filter_by(short=custom_id).first():
+        if URLMap.get(custom_id):
             flash('Предложенный вариант короткой ссылки уже существует.')
             return render_template('yacut.html', form=form)
-        if not custom_id:
-            custom_id = get_unique_short_id()
-        data_urls = URLMap(
-            original=form.original_link.data,
-            short=custom_id,
-        )
-        URLMap.save(data_urls)
+        URLMap.save(original, custom_id)
         return render_template('yacut.html', form=form, short=custom_id)
     return render_template('yacut.html', form=form)
 

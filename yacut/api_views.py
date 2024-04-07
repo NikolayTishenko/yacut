@@ -1,12 +1,8 @@
-import re
-
 from flask import jsonify, request
-from settings import SHORT_URL_PATTERN, USER_LINK_LENGTH
 
 from . import app
 from .error_handlers import InvalidAPIUsage
 from .models import URLMap
-from .views import get_unique_short_id
 
 
 @app.route('/api/id/', methods=['POST'])
@@ -18,21 +14,7 @@ def add_short_url():
     if not original:
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
     short = data.get('custom_id')
-    if short:
-        if len(short) > USER_LINK_LENGTH or not re.match(SHORT_URL_PATTERN,
-                                                         short):
-            raise InvalidAPIUsage('Указано недопустимое имя '
-                                  'для короткой ссылки')
-        if URLMap.query.filter_by(short=short).first():
-            raise InvalidAPIUsage('Предложенный вариант короткой '
-                                  'ссылки уже существует.')
-    else:
-        short = get_unique_short_id()
-    data_urls = URLMap(
-        original=original,
-        short=short
-    )
-    URLMap.save(data_urls)
+    data_urls = URLMap.save(original, short)
     return jsonify(data_urls.url_to_dict()), 201
 
 
