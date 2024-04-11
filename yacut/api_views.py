@@ -10,11 +10,10 @@ def add_short_url():
     data = request.get_json()
     if not data:
         raise InvalidAPIUsage('Отсутствует тело запроса')
-    original = data.get('url')
-    if not original:
+    #original = data.get('url') ###
+    if 'url' not in data:
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
-    short = data.get('custom_id')
-    data_urls = URLMap.save(original, short)
+    data_urls = URLMap.save(**data)
     return jsonify(data_urls.url_to_dict()), 201
 
 

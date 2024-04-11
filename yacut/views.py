@@ -1,6 +1,7 @@
 from flask import flash, redirect, render_template
 
 from . import app
+from .error_handlers import InvalidAPIUsage
 from .forms import URLMapForm
 from .models import URLMap
 
@@ -11,11 +12,12 @@ def index_view():
     if form.validate_on_submit():
         original = form.original_link.data
         custom_id = form.custom_id.data
-        if URLMap.get(custom_id):
+        try:
+            URLMap.save(url=original, custom_id=custom_id)
+            return render_template('yacut.html', form=form, short=custom_id)
+        except InvalidAPIUsage:
             flash('Предложенный вариант короткой ссылки уже существует.')
             return render_template('yacut.html', form=form)
-        URLMap.save(original, custom_id)
-        return render_template('yacut.html', form=form, short=custom_id)
     return render_template('yacut.html', form=form)
 
 

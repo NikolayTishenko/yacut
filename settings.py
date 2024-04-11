@@ -12,4 +12,4 @@ class Config(object):
 USER_LINK_LENGTH = 16
 SHORT_LINK_LENGTH = 6
 CHARACTER_SET = string.ascii_letters + string.digits
-SHORT_URL_PATTERN = '^[A-Za-z0-9]*$'
+SHORT_URL_PATTERN = '^[A-Za-z0-9]{{1,{}}}$'.format(USER_LINK_LENGTH)
