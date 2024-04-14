@@ -10,7 +10,6 @@ def add_short_url():
     data = request.get_json()
     if not data:
         raise InvalidAPIUsage('Отсутствует тело запроса')
-    #original = data.get('url') ###
     if 'url' not in data:
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
     data_urls = URLMap.save(**data)

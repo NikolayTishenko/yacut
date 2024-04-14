@@ -7,8 +7,7 @@ from settings import (CHARACTER_SET, SHORT_LINK_LENGTH, SHORT_URL_PATTERN,
                       USER_LINK_LENGTH)
 
 from yacut import db
-
-from .error_handlers import InvalidAPIUsage, ShortLinkGenerationError
+from .error_handlers import ShortLinkGenerationError
 
 
 class URLMap(db.Model):
@@ -26,11 +25,6 @@ class URLMap(db.Model):
                                )
         )
 
-    def from_dict(self, data):
-        for field in ['original', 'short']:
-            if field in data:
-                setattr(self, field, data[field])
-
     @staticmethod
     def get_unique_short_id():
         rand_string = ''.join(random.choices(CHARACTER_SET,
@@ -40,19 +34,18 @@ class URLMap(db.Model):
                 'Кончились варианты коротких ссылок.')
         return rand_string
 
-    @classmethod
-    def save(cls, **data):
+    def save(**data):
         short = data.get('custom_id')
         if short:
             if not re.match(SHORT_URL_PATTERN, short):
-                raise InvalidAPIUsage('Указано недопустимое имя '
-                                      'для короткой ссылки')
-            if cls.get(short):
-                raise InvalidAPIUsage('Предложенный вариант короткой '
-                                      'ссылки уже существует.')
+                raise ShortLinkGenerationError('Указано недопустимое имя '
+                                               'для короткой ссылки')
+            if URLMap.get(short):
+                raise ShortLinkGenerationError('Предложенный вариант короткой '
+                                               'ссылки уже существует.')
         else:
-            short = cls.get_unique_short_id()
-        data_urls = cls(
+            short = URLMap.get_unique_short_id()
+        data_urls = URLMap(
             original=data.get('url'),
             short=short)
         db.session.add(data_urls)

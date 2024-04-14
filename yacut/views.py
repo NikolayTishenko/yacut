@@ -1,7 +1,7 @@
 from flask import flash, redirect, render_template
 
 from . import app
-from .error_handlers import InvalidAPIUsage
+from .error_handlers import ShortLinkGenerationError
 from .forms import URLMapForm
 from .models import URLMap
 
@@ -15,7 +15,7 @@ def index_view():
         try:
             URLMap.save(url=original, custom_id=custom_id)
             return render_template('yacut.html', form=form, short=custom_id)
-        except InvalidAPIUsage:
+        except ShortLinkGenerationError:
             flash('Предложенный вариант короткой ссылки уже существует.')
             return render_template('yacut.html', form=form)
     return render_template('yacut.html', form=form)
